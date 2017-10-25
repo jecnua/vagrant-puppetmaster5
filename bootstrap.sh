@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Set in the vagrantfile
+LOCAL_IP='172.16.3.2'
+
 sudo su -
 apt-get update
 apt-get upgrade -y
@@ -17,7 +20,7 @@ docker run \
   -d \
   --name='puppetserver' \
   -p 8140:8140 \
-  --add-host puppetdb:172.16.3.2 \
+  --add-host puppetdb:$LOCAL_IP \
   -v /home/ubuntu/code:/etc/puppetlabs/code/ \
   -v /home/ubuntu/puppet/ssl:/etc/puppetlabs/puppet/ssl/ \
   -v /home/ubuntu/puppet/serverdata:/opt/puppetlabs/server/data/puppetserver/ \
@@ -47,10 +50,11 @@ docker run \
     -h puppetdb \
     -p 8080:8080 \
     -p 8081:8081 \
-    --add-host puppetdb:172.16.3.2 \
-    --add-host puppet:172.16.3.2 \
+    --add-host puppetdb:$LOCAL_IP \
+    --add-host puppet:$LOCAL_IP \
+    --add-host postgres:$LOCAL_IP \
     -v /home/ubuntu/puppet/puppetdb/ssl:/etc/puppetlabs/puppet/ssl/ \
-    -e 'PUPPETDB_DATABASE_CONNECTION=//172.16.3.2:5432/puppetdb' \
+    -e 'PUPPETDB_DATABASE_CONNECTION=//postgres:5432/puppetdb' \
     -e "PPOSTGRES_PASSWORD=puppetdb" \
     -e "POSTGRES_USER=puppetdb" \
     -e "HOSTNAME=puppetdb" \
@@ -71,7 +75,7 @@ docker rm puppetexplorer
 docker run \
     -d \
     --name='puppetexplorer' \
-    --add-host puppetdb:172.16.3.2 \
+    --add-host puppetdb:$LOCAL_IP \
     -p 80:80 \
     puppet/puppetexplorer:2.0.0
 
@@ -81,5 +85,5 @@ docker run \
 #   -d \
 #   -h `uuidgen` \
 #   --name='puppetagent' \
-#   --add-host puppet:172.16.3.2 \
+#   --add-host puppet:$LOCAL_IP \
 #   puppet/puppet-agent-ubuntu:5.3.2 agent --verbose --no-daemonize --summarize
