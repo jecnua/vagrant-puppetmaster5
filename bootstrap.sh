@@ -14,6 +14,8 @@ chmod -R 777 /home/ubuntu/puppetdb-postgres/
 cd /home/ubuntu || exit
 git clone https://github.com/puppetlabs/puppet-in-docker-examples.git
 
+#     basedir: '/etc/puppetlabs/code/environments'
+
 docker stop puppetserver
 docker rm puppetserver
 docker run \
